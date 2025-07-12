@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
+import { useGroceryItems } from "@/lib/useGroceryItems";
+
 
 // ---------- Types ----------
 interface Task {
@@ -27,26 +29,7 @@ interface GroceryItem {
   recipeId: string; // "custom" or recipe.id
 }
 
-// ---------- Helpers ----------
-const uuid = () => crypto.randomUUID();
 
-// Persist & hydrate grocery list in localStorage
-const usePersistentState = <T,>(key: string, defaultValue: T) => {
-  const [value, setValue] = useState<T>(() => {
-    try {
-      const stored = localStorage.getItem(key);
-      return stored ? (JSON.parse(stored) as T) : defaultValue;
-    } catch {
-      return defaultValue;
-    }
-  });
-
-  useEffect(() => {
-    localStorage.setItem(key, JSON.stringify(value));
-  }, [key, value]);
-
-  return [value, setValue] as const;
-};
 
 // ---------- Main App ----------
 export default function MaidHelperApp() {
@@ -77,7 +60,7 @@ export default function MaidHelperApp() {
     },
   ]);
 
-import { useGroceryItems } from "@/lib/useGroceryItems";
+
 
 const { items: groceryItems, add, toggle, clearAll } = useGroceryItems();
 
