@@ -77,32 +77,32 @@ export default function MaidHelperApp() {
     },
   ]);
 
-  const [groceryItems, setGroceryItems] = usePersistentState<GroceryItem[]>("grocery", []);
+import { useGroceryItems } from "@/lib/useGroceryItems";
+
+const { items: groceryItems, add, toggle, clearAll } = useGroceryItems();
 
   // ---------- Handlers ----------
   const addIngredientsToGrocery = (recipe: Recipe) => {
-    setGroceryItems((prev) => {
-      const ingredientSet = new Set(prev.map((i) => i.name.toLowerCase()));
-      const newItems = recipe.ingredients
-        .filter((ing) => !ingredientSet.has(ing.toLowerCase()))
-        .map<GroceryItem>((ing) => ({ id: uuid(), name: ing, checked: false, recipeId: recipe.id }));
-      return [...prev, ...newItems];
-    });
-  };
+  const existing = new Set(groceryItems.map((i) => i.name.toLowerCase()));
+  recipe.ingredients.forEach((ing) => {
+    if (!existing.has(ing.toLowerCase())) {
+      add({ name: ing, checked: false, recipeId: recipe.id });
+    }
+  });
+};
 
-  const toggleCheck = (id: string) => {
-    setGroceryItems((prev) => prev.map((i) => (i.id === id ? { ...i, checked: !i.checked } : i)));
-  };
+const toggleCheck = (id: string) => {
+  const item = groceryItems.find((i) => i.id === id);
+  if (item) toggle(id, !item.checked);
+};
 
-  const clearAllGroceries = () => setGroceryItems([]);
+const clearAllGroceries = () => clearAll();
 
-  const addCustomItem = (name: string) => {
-    if (!name.trim()) return;
-    setGroceryItems((prev) => [
-      ...prev,
-      { id: uuid(), name: name.trim(), checked: false, recipeId: "custom" },
-    ]);
-  };
+const addCustomItem = (name: string) => {
+  if (name.trim()) {
+    add({ name: name.trim(), checked: false, recipeId: "custom" });
+  }
+};
 
   // ---------- Render ----------
   return (
