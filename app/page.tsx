@@ -7,6 +7,11 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
 import { useGroceryItems } from "@/lib/useGroceryItems";
+import { useTasks } from "@/lib/useTasks";
+import { useRecipes } from "@/lib/useRecipes";
+
+
+
 
 
 // ---------- Types ----------
@@ -33,33 +38,9 @@ interface GroceryItem {
 
 // ---------- Main App ----------
 export default function MaidHelperApp() {
-  // Initial demo data (could be fetched from DB later)
-  const [tasks] = useState<Task[]>([
-    {
-      id: "1",
-      name: "Morning Cleaning",
-      description: "Sweep and mop all floors, wipe kitchen counters, and tidy the living room.",
-    },
-    {
-      id: "2",
-      name: "Laundry",
-      description: "Wash white clothes separately, hang outside, and iron uniforms when dry.",
-    },
-  ]);
-
-  const [recipes] = useState<Recipe[]>([
-    {
-      id: "r1",
-      name: "Chicken Adobo",
-      ingredients: ["Chicken", "Soy Sauce", "Vinegar", "Garlic", "Bay Leaf"],
-    },
-    {
-      id: "r2",
-      name: "Pancit Canton",
-      ingredients: ["Canton Noodles", "Cabbage", "Carrot", "Soy Sauce", "Pork"],
-    },
-  ]);
-
+  
+const { tasks, add: addTask } = useTasks();
+const { recipes, add: addRecipe } = useRecipes();
 
 
 const { items: groceryItems, add, toggle, clearAll } = useGroceryItems();
