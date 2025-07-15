@@ -14,8 +14,7 @@ import AddRecipeModal from "@/components/AddRecipeModal";
 import { Plus } from "lucide-react";
 import type { Recipe } from "@/lib/useRecipes";
 
-const [taskOpen,setTaskOpen]=useState(false);
-const [recipeOpen,setRecipeOpen]=useState(false);
+
 
 
 // ---------- Types ----------
@@ -38,7 +37,8 @@ interface GroceryItem {
 
 // ---------- Main App ----------
 export default function MaidHelperApp() {
-  
+const [taskOpen,setTaskOpen]=useState(false);
+const [recipeOpen,setRecipeOpen]=useState(false);  
 const { tasks, add: addTask } = useTasks();
 const { recipes, add: addRecipe } = useRecipes();
 
