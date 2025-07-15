@@ -12,6 +12,7 @@ import { useRecipes } from "@/lib/useRecipes";
 import AddTaskModal from "@/components/AddTaskModal";
 import AddRecipeModal from "@/components/AddRecipeModal";
 import { Plus } from "lucide-react";
+import type { Recipe } from "@/lib/useRecipes";
 
 const [taskOpen,setTaskOpen]=useState(false);
 const [recipeOpen,setRecipeOpen]=useState(false);
@@ -24,12 +25,7 @@ interface Task {
   description: string;
 }
 
-interface Recipe {
-  id: string;
-  name: string;
-  ingredients: string[];
-  imageUrl?: string; 
-}
+
 
 interface GroceryItem {
   id: string;
