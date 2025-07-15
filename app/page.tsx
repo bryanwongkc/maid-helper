@@ -28,6 +28,7 @@ interface Recipe {
   id: string;
   name: string;
   ingredients: string[];
+  imageUrl?: string; 
 }
 
 interface GroceryItem {
