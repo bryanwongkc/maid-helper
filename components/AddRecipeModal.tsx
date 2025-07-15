@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { useTasks } from "@/lib/useTasks";
+import type { Recipe } from "@/lib/useRecipes";
 
 export default function AddTaskModal({ open, onOpenChange }: { open: boolean; onOpenChange: (b:boolean)=>void }) {
   const { add } = useTasks();
