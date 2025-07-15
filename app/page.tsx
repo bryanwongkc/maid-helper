@@ -9,9 +9,12 @@ import { motion } from "framer-motion";
 import { useGroceryItems } from "@/lib/useGroceryItems";
 import { useTasks } from "@/lib/useTasks";
 import { useRecipes } from "@/lib/useRecipes";
+import AddTaskModal from "@/components/AddTaskModal";
+import AddRecipeModal from "@/components/AddRecipeModal";
+import { Plus } from "lucide-react";
 
-
-
+const [taskOpen,setTaskOpen]=useState(false);
+const [recipeOpen,setRecipeOpen]=useState(false);
 
 
 // ---------- Types ----------
@@ -79,6 +82,13 @@ const addCustomItem = (name: string) => {
         </TabsList>
 
         {/* ----------------- Tasks Tab ----------------- */}
+        <div className="flex justify-between mb-4">
+  <h2 className="text-xl font-semibold">Task List</h2>
+  <Button onClick={()=>setTaskOpen(true)} size="sm">
+    <Plus className="w-4 h-4 mr-1"/> Add Task
+  </Button>
+</div>
+<AddTaskModal open={taskOpen} onOpenChange={setTaskOpen}/>
         <TabsContent value="tasks" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-xl font-semibold mb-4">Task List</h2>
@@ -103,6 +113,14 @@ const addCustomItem = (name: string) => {
         </TabsContent>
 
         {/* ----------------- Recipes Tab ----------------- */}
+        <div className="flex justify-between mb-4">
+  <h2 className="text-xl font-semibold">Recipes</h2>
+  <Button onClick={()=>setRecipeOpen(true)} size="sm">
+    <Plus className="w-4 h-4 mr-1"/> Add Recipe
+  </Button>
+</div>
+<AddRecipeModal open={recipeOpen} onOpenChange={setRecipeOpen}/>
+
         <TabsContent value="recipes" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-xl font-semibold mb-4">Recipes</h2>
@@ -117,6 +135,14 @@ const addCustomItem = (name: string) => {
                       {recipe.ingredients.map((ing) => (
                         <li key={ing}>{ing}</li>
                       ))}
+                      {recipe.imageUrl && (
+  <img
+    src={recipe.imageUrl}
+    alt={recipe.name}
+    className="w-full h-40 object-cover rounded-lg mb-2"
+  />
+)}
+
                     </ul>
                     <Button onClick={() => addIngredientsToGrocery(recipe)}>
                       Add Ingredients to Grocery

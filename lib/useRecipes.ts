@@ -23,9 +23,9 @@ export function useRecipes() {
     return unsub;
   }, []);
 
-  const add = useCallback(async (name: string, ingredients: string[]) => {
-    await addDoc(collection(db, "recipes"), { name, ingredients, createdAt: serverTimestamp() });
-  }, []);
+  const add = useCallback(async (name:string, ingredients:string[], imageUrl:string) => {
+  await addDoc(collection(db,"recipes"), { name, ingredients, imageUrl, createdAt: serverTimestamp() });
+}, []);
 
   const remove = useCallback(async (id: string) => {
     await deleteDoc(doc(db, "recipes", id));
