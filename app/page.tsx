@@ -1,4 +1,5 @@
 "use client";
+
 import React, { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -11,19 +12,66 @@ import { Plus } from "lucide-react";
 import { useGroceryItems } from "@/lib/useGroceryItems";
 import { useTasks } from "@/lib/useTasks";
 import { useRecipes, Recipe } from "@/lib/useRecipes";
+import { useLongPress } from "@/lib/useLongPress";
+
 import AddTaskModal from "@/components/AddTaskModal";
 import AddRecipeModal from "@/components/AddRecipeModal";
-import { useLongPress } from "@/lib/useLongPress";
+
+function TaskCard({ task, onLongPress }: { task: any; onLongPress: () => void }) {
+  const longPress = useLongPress(onLongPress);
+
+  return (
+    <Card key={task.id} {...longPress} className="cursor-pointer">
+      <CardHeader>
+        <CardTitle>{task.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <details>
+          <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
+            View details
+          </summary>
+          <p className="text-base leading-relaxed">{task.description}</p>
+        </details>
+      </CardContent>
+    </Card>
+  );
+}
+
+function RecipeCard({ recipe, onLongPress, addToGrocery }: {
+  recipe: Recipe;
+  onLongPress: () => void;
+  addToGrocery: () => void;
+}) {
+  const longPress = useLongPress(onLongPress);
+
+  return (
+    <Card key={recipe.id} {...longPress}>
+      <CardHeader>
+        <CardTitle>{recipe.name}</CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        {recipe.imageUrl && (
+          <img
+            src={recipe.imageUrl}
+            alt={recipe.name}
+            className="w-full max-h-40 object-cover rounded-lg mb-2"
+          />
+        )}
+        <ul className="list-disc list-inside text-sm text-gray-700">
+          {recipe.ingredients.map((ing) => (
+            <li key={ing}>{ing}</li>
+          ))}
+        </ul>
+        <Button onClick={addToGrocery}>Add Ingredients to Grocery</Button>
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function MaidHelperApp() {
   const { tasks, add: addTask, remove: removeTask } = useTasks();
   const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
-  const {
-    items: groceryItems,
-    add,
-    toggle,
-    clearAll
-  } = useGroceryItems();
+  const { items: groceryItems, add, toggle, clearAll } = useGroceryItems();
 
   const [taskOpen, setTaskOpen] = useState(false);
   const [recipeOpen, setRecipeOpen] = useState(false);
@@ -48,18 +96,6 @@ export default function MaidHelperApp() {
     }
   };
 
-  const handleLongPressTask = (id: string) => {
-    if (confirm("Delete this task?")) {
-      removeTask(id);
-    }
-  };
-
-  const handleLongPressRecipe = (id: string) => {
-    if (confirm("Delete this recipe?")) {
-      removeRecipe(id);
-    }
-  };
-
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <Tabs defaultValue="tasks">
@@ -79,28 +115,10 @@ export default function MaidHelperApp() {
               </Button>
             </div>
             <AddTaskModal open={taskOpen} onOpenChange={setTaskOpen} />
-
             <div className="space-y-4">
-              {tasks.map((task) => {
-                const longPress = useLongPress(() => handleLongPressTask(task.id));
-                return (
-                  <Card key={task.id} {...longPress} className="cursor-pointer">
-                    <CardHeader>
-                      <CardTitle>{task.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      <details>
-                        <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
-                          View details
-                        </summary>
-                        <p className="text-base leading-relaxed">
-                          {task.description}
-                        </p>
-                      </details>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {tasks.map((task) => (
+                <TaskCard key={task.id} task={task} onLongPress={() => removeTask(task.id)} />
+              ))}
             </div>
           </motion.div>
         </TabsContent>
@@ -115,42 +133,20 @@ export default function MaidHelperApp() {
               </Button>
             </div>
             <AddRecipeModal open={recipeOpen} onOpenChange={setRecipeOpen} />
-
             <div className="space-y-4">
-              {recipes.map((recipe) => {
-                const longPress = useLongPress(() => handleLongPressRecipe(recipe.id));
-                return (
-                  <Card key={recipe.id} {...longPress}>
-                    <CardHeader>
-                      <CardTitle>{recipe.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-2">
-                      {recipe.imageUrl && (
-                        <img
-                          src={recipe.imageUrl}
-                          alt={recipe.name}
-                          className="w-full max-h-40 object-cover rounded-lg mb-2"
-                        />
-                      )}
-
-                      <ul className="list-disc list-inside text-sm text-gray-700">
-                        {recipe.ingredients.map((ing) => (
-                          <li key={ing}>{ing}</li>
-                        ))}
-                      </ul>
-
-                      <Button onClick={() => addIngredientsToGrocery(recipe)}>
-                        Add Ingredients to Grocery
-                      </Button>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {recipes.map((recipe) => (
+                <RecipeCard
+                  key={recipe.id}
+                  recipe={recipe}
+                  onLongPress={() => removeRecipe(recipe.id)}
+                  addToGrocery={() => addIngredientsToGrocery(recipe)}
+                />
+              ))}
             </div>
           </motion.div>
         </TabsContent>
 
-        {/* GROCERY */}
+        {/* GROCERY LIST */}
         <TabsContent value="grocery" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-xl font-semibold mb-4">Grocery Shopping List</h2>
@@ -178,47 +174,31 @@ export default function MaidHelperApp() {
                 Add
               </Button>
               {groceryItems.length > 0 && (
-                <Button
-                  variant="destructive"
-                  onClick={clearAll}
-                  className="ml-auto"
-                >
+                <Button variant="destructive" onClick={clearAll} className="ml-auto">
                   Clear All
                 </Button>
               )}
             </div>
-
             {groceryItems.length === 0 ? (
-              <p className="text-gray-500">
-                No items yet. Add from recipes or custom.
-              </p>
+              <p className="text-gray-500">No items yet. Add from recipes or custom.</p>
             ) : (
               recipes
                 .concat([{ id: "custom", name: "Custom Items", ingredients: [] }])
                 .map((recipe) => {
-                  const items = groceryItems.filter(
-                    (i) => i.recipeId === recipe.id
-                  );
+                  const items = groceryItems.filter((i) => i.recipeId === recipe.id);
                   if (items.length === 0) return null;
                   return (
                     <div key={recipe.id} className="mb-6">
                       <h3 className="font-medium mb-2 text-lg">{recipe.name}</h3>
                       <div className="space-y-2">
                         {items.map((item) => (
-                          <label
-                            key={item.id}
-                            className="flex items-center gap-2 cursor-pointer"
-                          >
+                          <label key={item.id} className="flex items-center gap-2 cursor-pointer">
                             <Checkbox
                               checked={item.checked}
                               onCheckedChange={() => toggleCheck(item.id)}
                             />
                             <span
-                              className={
-                                item.checked
-                                  ? "line-through text-gray-400"
-                                  : ""
-                              }
+                              className={item.checked ? "line-through text-gray-400" : ""}
                             >
                               {item.name}
                             </span>
