@@ -14,8 +14,13 @@ import { useRecipes, Recipe } from "@/lib/useRecipes";
 
 import AddTaskModal from "@/components/AddTaskModal";
 import AddRecipeModal from "@/components/AddRecipeModal";
+import { useLongPress } from "@/lib/useLongPress";
 
 export default function MaidHelperApp() {
+  const { tasks, add: addTask, remove: removeTask } = useTasks();
+const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
+
+  
   /* ------------------ local UI state ------------------ */
   const [taskOpen, setTaskOpen] = useState(false);
   const [recipeOpen, setRecipeOpen] = useState(false);
@@ -50,7 +55,17 @@ export default function MaidHelperApp() {
       add({ name: name.trim(), checked: false, recipeId: "custom" });
     }
   };
+const handleLongPressTask = (id: string) => {
+  if (confirm("Delete this task?")) {
+    removeTask(id);
+  }
+};
 
+const handleLongPressRecipe = (id: string) => {
+  if (confirm("Delete this recipe?")) {
+    removeRecipe(id);
+  }
+};
   /* ------------------ render ------------------ */
   return (
     <div className="p-4 max-w-4xl mx-auto">
@@ -74,6 +89,9 @@ export default function MaidHelperApp() {
 
             <div className="space-y-4">
               {tasks.map((task) => (
+                const longPress = useLongPress(() => handleLongPressTask(task.id));
+
+  return (
                 <Card key={task.id} className="cursor-pointer">
                   <CardHeader>
                     <CardTitle>{task.name}</CardTitle>
@@ -107,6 +125,8 @@ export default function MaidHelperApp() {
 
             <div className="space-y-4">
               {recipes.map((recipe) => (
+                const longPress = useLongPress(() => handleLongPressRecipe(recipe.id));
+  return (
                 <Card key={recipe.id}>
                   <CardHeader>
                     <CardTitle>{recipe.name}</CardTitle>
