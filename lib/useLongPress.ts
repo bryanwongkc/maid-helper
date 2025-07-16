@@ -8,7 +8,7 @@ import { useRef } from "react";
  * @param delay Press duration (default 800ms)
  */
 export function useLongPress(callback: () => void, delay = 800) {
-  const timerRef = useRef<NodeJS.Timeout>();
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
 
   const start = () => {
     timerRef.current = setTimeout(callback, delay);
