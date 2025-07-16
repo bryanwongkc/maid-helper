@@ -1,4 +1,3 @@
-// lib/useGroceryItems.ts
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import {
@@ -10,7 +9,8 @@ import {
   query,
   orderBy,
   updateDoc,
-  serverTimestamp
+  serverTimestamp,
+  getDocs
 } from "firebase/firestore";
 import { db } from "./firebase";
 
@@ -49,11 +49,11 @@ export function useGroceryItems() {
   }, []);
 
   const clearAll = useCallback(async () => {
-    const q = query(collection(db, "groceryItems"));
-    const snapshot = await onSnapshot(q, () => {});
-    snapshot.forEach(async (docSnap) => {
-      await deleteDoc(doc(db, "groceryItems", docSnap.id));
-    });
+    const snapshot = await getDocs(collection(db, "groceryItems"));
+    const promises = snapshot.docs.map((docSnap) =>
+      deleteDoc(doc(db, "groceryItems", docSnap.id))
+    );
+    await Promise.all(promises);
   }, []);
 
   const remove = useCallback(async (id: string) => {
