@@ -11,23 +11,13 @@ import { Plus } from "lucide-react";
 import { useGroceryItems } from "@/lib/useGroceryItems";
 import { useTasks } from "@/lib/useTasks";
 import { useRecipes, Recipe } from "@/lib/useRecipes";
-
 import AddTaskModal from "@/components/AddTaskModal";
 import AddRecipeModal from "@/components/AddRecipeModal";
 import { useLongPress } from "@/lib/useLongPress";
 
 export default function MaidHelperApp() {
   const { tasks, add: addTask, remove: removeTask } = useTasks();
-const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
-
-  
-  /* ------------------ local UI state ------------------ */
-  const [taskOpen, setTaskOpen] = useState(false);
-  const [recipeOpen, setRecipeOpen] = useState(false);
-
-  /* ------------------ Firestore hooks ----------------- */
-  const { tasks } = useTasks();
-  const { recipes } = useRecipes();
+  const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
   const {
     items: groceryItems,
     add,
@@ -35,7 +25,9 @@ const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
     clearAll
   } = useGroceryItems();
 
-  /* ------------------ handlers ------------------ */
+  const [taskOpen, setTaskOpen] = useState(false);
+  const [recipeOpen, setRecipeOpen] = useState(false);
+
   const addIngredientsToGrocery = (recipe: Recipe) => {
     const existing = new Set(groceryItems.map((i) => i.name.toLowerCase()));
     recipe.ingredients.forEach((ing) => {
@@ -55,18 +47,19 @@ const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
       add({ name: name.trim(), checked: false, recipeId: "custom" });
     }
   };
-const handleLongPressTask = (id: string) => {
-  if (confirm("Delete this task?")) {
-    removeTask(id);
-  }
-};
 
-const handleLongPressRecipe = (id: string) => {
-  if (confirm("Delete this recipe?")) {
-    removeRecipe(id);
-  }
-};
-  /* ------------------ render ------------------ */
+  const handleLongPressTask = (id: string) => {
+    if (confirm("Delete this task?")) {
+      removeTask(id);
+    }
+  };
+
+  const handleLongPressRecipe = (id: string) => {
+    if (confirm("Delete this recipe?")) {
+      removeRecipe(id);
+    }
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <Tabs defaultValue="tasks">
@@ -76,7 +69,7 @@ const handleLongPressRecipe = (id: string) => {
           <TabsTrigger value="grocery">Grocery List</TabsTrigger>
         </TabsList>
 
-        {/* ========== TASKS TAB ========== */}
+        {/* TASKS */}
         <TabsContent value="tasks" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex justify-between mb-4">
@@ -88,31 +81,31 @@ const handleLongPressRecipe = (id: string) => {
             <AddTaskModal open={taskOpen} onOpenChange={setTaskOpen} />
 
             <div className="space-y-4">
-              {tasks.map((task) => (
+              {tasks.map((task) => {
                 const longPress = useLongPress(() => handleLongPressTask(task.id));
-
-  return (
-                <Card key={task.id} className="cursor-pointer">
-                  <CardHeader>
-                    <CardTitle>{task.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <details>
-                      <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
-                        View details
-                      </summary>
-                      <p className="text-base leading-relaxed">
-                        {task.description}
-                      </p>
-                    </details>
-                  </CardContent>
-                </Card>
-              ))}
+                return (
+                  <Card key={task.id} {...longPress} className="cursor-pointer">
+                    <CardHeader>
+                      <CardTitle>{task.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <details>
+                        <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
+                          View details
+                        </summary>
+                        <p className="text-base leading-relaxed">
+                          {task.description}
+                        </p>
+                      </details>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </motion.div>
         </TabsContent>
 
-        {/* ========== RECIPES TAB ========== */}
+        {/* RECIPES */}
         <TabsContent value="recipes" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex justify-between mb-4">
@@ -124,46 +117,43 @@ const handleLongPressRecipe = (id: string) => {
             <AddRecipeModal open={recipeOpen} onOpenChange={setRecipeOpen} />
 
             <div className="space-y-4">
-              {recipes.map((recipe) => (
+              {recipes.map((recipe) => {
                 const longPress = useLongPress(() => handleLongPressRecipe(recipe.id));
-  return (
-                <Card key={recipe.id}>
-                  <CardHeader>
-                    <CardTitle>{recipe.name}</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {recipe.imageUrl && (
-                      <img
-                        src={recipe.imageUrl}
-                        alt={recipe.name}
-                        className="w-full max-h-40 object-cover rounded-lg mb-2"
-                      />
-                    )}
+                return (
+                  <Card key={recipe.id} {...longPress}>
+                    <CardHeader>
+                      <CardTitle>{recipe.name}</CardTitle>
+                    </CardHeader>
+                    <CardContent className="space-y-2">
+                      {recipe.imageUrl && (
+                        <img
+                          src={recipe.imageUrl}
+                          alt={recipe.name}
+                          className="w-full max-h-40 object-cover rounded-lg mb-2"
+                        />
+                      )}
 
-                    <ul className="list-disc list-inside text-sm text-gray-700">
-                      {recipe.ingredients.map((ing) => (
-                        <li key={ing}>{ing}</li>
-                      ))}
-                    </ul>
+                      <ul className="list-disc list-inside text-sm text-gray-700">
+                        {recipe.ingredients.map((ing) => (
+                          <li key={ing}>{ing}</li>
+                        ))}
+                      </ul>
 
-                    <Button onClick={() => addIngredientsToGrocery(recipe)}>
-                      Add Ingredients to Grocery
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                      <Button onClick={() => addIngredientsToGrocery(recipe)}>
+                        Add Ingredients to Grocery
+                      </Button>
+                    </CardContent>
+                  </Card>
+                );
+              })}
             </div>
           </motion.div>
         </TabsContent>
 
-        {/* ========== GROCERY TAB ========== */}
+        {/* GROCERY */}
         <TabsContent value="grocery" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-            <h2 className="text-xl font-semibold mb-4">
-              Grocery Shopping List
-            </h2>
-
-            {/* Custom entry */}
+            <h2 className="text-xl font-semibold mb-4">Grocery Shopping List</h2>
             <div className="flex gap-2 mb-4">
               <Input
                 placeholder="Add custom item..."
@@ -178,9 +168,11 @@ const handleLongPressRecipe = (id: string) => {
                 onClick={() => {
                   const input = document.querySelector<HTMLInputElement>(
                     "input[placeholder='Add custom item...']"
-                  )!;
-                  addCustomItem(input.value);
-                  input.value = "";
+                  );
+                  if (input) {
+                    addCustomItem(input.value);
+                    input.value = "";
+                  }
                 }}
               >
                 Add
@@ -196,16 +188,13 @@ const handleLongPressRecipe = (id: string) => {
               )}
             </div>
 
-            {/* Grouped items */}
             {groceryItems.length === 0 ? (
               <p className="text-gray-500">
                 No items yet. Add from recipes or custom.
               </p>
             ) : (
               recipes
-                .concat([
-                  { id: "custom", name: "Custom Items", ingredients: [] }
-                ])
+                .concat([{ id: "custom", name: "Custom Items", ingredients: [] }])
                 .map((recipe) => {
                   const items = groceryItems.filter(
                     (i) => i.recipeId === recipe.id
@@ -213,9 +202,7 @@ const handleLongPressRecipe = (id: string) => {
                   if (items.length === 0) return null;
                   return (
                     <div key={recipe.id} className="mb-6">
-                      <h3 className="font-medium mb-2 text-lg">
-                        {recipe.name}
-                      </h3>
+                      <h3 className="font-medium mb-2 text-lg">{recipe.name}</h3>
                       <div className="space-y-2">
                         {items.map((item) => (
                           <label
