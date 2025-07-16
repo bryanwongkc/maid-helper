@@ -18,7 +18,10 @@ import AddTaskModal from "@/components/AddTaskModal";
 import AddRecipeModal from "@/components/AddRecipeModal";
 
 function TaskCard({ task, onLongPress }: { task: any; onLongPress: () => void }) {
-  const longPress = useLongPress(onLongPress);
+  const longPress = useLongPress(() => {
+    const confirmDelete = window.confirm("Delete this task?");
+    if (confirmDelete) onLongPress();
+  });
 
   return (
     <Card key={task.id} {...longPress} className="cursor-pointer">
@@ -42,7 +45,10 @@ function RecipeCard({ recipe, onLongPress, addToGrocery }: {
   onLongPress: () => void;
   addToGrocery: () => void;
 }) {
-  const longPress = useLongPress(onLongPress);
+  const longPress = useLongPress(() => {
+    const confirmDelete = window.confirm("Delete this recipe?");
+    if (confirmDelete) onLongPress();
+  });
 
   return (
     <Card key={recipe.id} {...longPress}>
