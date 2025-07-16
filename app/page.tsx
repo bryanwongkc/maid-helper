@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { Plus } from "lucide-react";
+import { Plus, X } from "lucide-react";
 
 import { useGroceryItems } from "@/lib/useGroceryItems";
 import { useTasks } from "@/lib/useTasks";
@@ -33,7 +33,7 @@ function TaskCard({ task, onLongPress }: { task: any; onLongPress: () => void })
           <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
             View details
           </summary>
-          <p className="text-base leading-relaxed">{task.description}</p>
+          <p className="text-base leading-relaxed whitespace-pre-wrap">{task.description}</p>
         </details>
       </CardContent>
     </Card>
@@ -77,7 +77,7 @@ function RecipeCard({ recipe, onLongPress, addToGrocery }: {
 export default function MaidHelperApp() {
   const { tasks, add: addTask, remove: removeTask } = useTasks();
   const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
-  const { items: groceryItems, add, toggle, clearAll } = useGroceryItems();
+  const { items: groceryItems, add, toggle, remove: removeItem, clearAll } = useGroceryItems();
 
   const [taskOpen, setTaskOpen] = useState(false);
   const [recipeOpen, setRecipeOpen] = useState(false);
@@ -198,7 +198,7 @@ export default function MaidHelperApp() {
                       <h3 className="font-medium mb-2 text-lg">{recipe.name}</h3>
                       <div className="space-y-2">
                         {items.map((item) => (
-                          <label key={item.id} className="flex items-center gap-2 cursor-pointer">
+                          <div key={item.id} className="flex items-center gap-2">
                             <Checkbox
                               checked={item.checked}
                               onCheckedChange={() => toggleCheck(item.id)}
@@ -208,7 +208,10 @@ export default function MaidHelperApp() {
                             >
                               {item.name}
                             </span>
-                          </label>
+                            <button onClick={() => removeItem(item.id)}>
+                              <X className="w-4 h-4 text-red-500" />
+                            </button>
+                          </div>
                         ))}
                       </div>
                     </div>
