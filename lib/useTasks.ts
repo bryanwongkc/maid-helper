@@ -23,9 +23,15 @@ export function useTasks() {
     return unsub;
   }, []);
 
-  const add = useCallback(async (name: string, description: string) => {
-    await addDoc(collection(db, "tasks"), { name, description, createdAt: serverTimestamp() });
-  }, []);
+  const add = useCallback(async (name: string, description: string, imageUrl?: string) => {
+  await addDoc(collection(db, "tasks"), {
+    name,
+    description,
+    imageUrl: imageUrl ?? "",
+    createdAt: serverTimestamp(),
+  });
+}, []);
+
 
   const remove = useCallback(async (id: string) => {
     await deleteDoc(doc(db, "tasks", id));

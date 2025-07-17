@@ -6,25 +6,40 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { useTasks } from "@/lib/useTasks";
+import { uploadBytes, getDownloadURL, ref } from "firebase/storage";
+import { storage } from "@/lib/firebase";
 
 export default function AddTaskModal({
   open,
   onOpenChange,
 }: {
   open: boolean;
-  onOpenChange: (value: boolean) => void;
+  onOpenChange: (open: boolean) => void;
 }) {
-  const [name, setName] = useState("");
-  const [desc, setDesc] = useState("");
   const { add } = useTasks();
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [image, setImage] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
 
-  const handleAdd = async () => {
-    if (name.trim()) {
-      await add(name.trim(), desc.trim());
-      setName("");
-      setDesc("");
-      onOpenChange(false);
+  const handleSubmit = async () => {
+    if (!name.trim()) return;
+
+    setUploading(true);
+    let imageUrl = "";
+
+    if (image) {
+      const fileRef = ref(storage, `task-images/${Date.now()}_${image.name}`);
+      await uploadBytes(fileRef, image);
+      imageUrl = await getDownloadURL(fileRef);
     }
+
+    await add(name, description, imageUrl);
+    setName("");
+    setDescription("");
+    setImage(null);
+    onOpenChange(false);
+    setUploading(false);
   };
 
   return (
@@ -35,18 +50,23 @@ export default function AddTaskModal({
         </DialogHeader>
         <div className="space-y-4">
           <Input
-            placeholder="Task name"
+            placeholder="Task Name"
             value={name}
             onChange={(e) => setName(e.target.value)}
           />
           <Textarea
-            placeholder="Task description (you can use multiple lines)"
+            placeholder="Description"
             rows={4}
-            value={desc}
-            onChange={(e) => setDesc(e.target.value)}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
-          <Button onClick={handleAdd} className="w-full">
-            Save
+          <Input
+            type="file"
+            accept="image/*"
+            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+          />
+          <Button onClick={handleSubmit} disabled={uploading}>
+            {uploading ? "Adding..." : "Add Task"}
           </Button>
         </div>
       </DialogContent>
