@@ -10,7 +10,7 @@ import { motion } from "framer-motion";
 import { Plus } from "lucide-react";
 
 import { useGroceryItems } from "@/lib/useGroceryItems";
-import { useTasks } from "@/lib/useTasks";
+import { useTasks, Task } from "@/lib/useTasks";
 import { useRecipes, Recipe } from "@/lib/useRecipes";
 
 import AddTaskModal from "@/components/AddTaskModal";
@@ -86,7 +86,7 @@ export default function MaidHelperApp() {
                       <CardTitle>{task.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {task.imageUrl && (
+                      {"imageUrl" in task && task.imageUrl && (
                         <img
                           src={task.imageUrl}
                           alt={task.name}
