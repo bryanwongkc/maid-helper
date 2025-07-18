@@ -17,10 +17,36 @@ import AddTaskModal from "@/components/AddTaskModal";
 import AddRecipeModal from "@/components/AddRecipeModal";
 import { useLongPress } from "@/lib/useLongPress";
 
+function TaskCard({ task, onLongPress }: { task: Task; onLongPress: () => void }) {
+  const longPress = useLongPress(onLongPress);
+  return (
+    <Card key={task.id} {...longPress} className="cursor-pointer">
+      <CardHeader>
+        <CardTitle>{task.name}</CardTitle>
+      </CardHeader>
+      <CardContent>
+        {"imageUrl" in task && typeof task.imageUrl === "string" && (
+          <img
+            src={task.imageUrl}
+            alt={task.name}
+            className="w-full max-h-40 object-cover rounded-lg mb-2"
+          />
+        )}
+        <details>
+          <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
+            View details
+          </summary>
+          <p className="whitespace-pre-line text-base leading-relaxed">{task.description}</p>
+        </details>
+      </CardContent>
+    </Card>
+  );
+}
+
 export default function MaidHelperApp() {
   const { tasks, add: addTask, remove: removeTask } = useTasks();
   const { recipes, add: addRecipe, remove: removeRecipe } = useRecipes();
-  const { items: groceryItems, add, toggle, clearAll } = useGroceryItems();
+  const { items: groceryItems, add, toggle, clearAll, remove: removeItem } = useGroceryItems();
 
   const [taskOpen, setTaskOpen] = useState(false);
   const [recipeOpen, setRecipeOpen] = useState(false);
@@ -57,6 +83,12 @@ export default function MaidHelperApp() {
     }
   };
 
+  const handleLongPressItem = (id: string) => {
+    if (confirm("Remove this item?")) {
+      removeItem(id);
+    }
+  };
+
   return (
     <div className="p-4 max-w-4xl mx-auto">
       <Tabs defaultValue="tasks">
@@ -78,33 +110,9 @@ export default function MaidHelperApp() {
             <AddTaskModal open={taskOpen} onOpenChange={setTaskOpen} />
 
             <div className="space-y-4">
-              {tasks.map((task) => {
-                const longPress = useLongPress(() => handleLongPressTask(task.id));
-                return (
-                  <Card key={task.id} {...longPress} className="cursor-pointer">
-                    <CardHeader>
-                      <CardTitle>{task.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                      {"imageUrl" in task && typeof task.imageUrl === "string" && (
-                        <img
-                          src={task.imageUrl}
-                          alt={task.name}
-                          className="w-full max-h-40 object-cover rounded-lg mb-2"
-                        />
-                      )}
-                      <details>
-                        <summary className="cursor-pointer select-none mb-2 text-sm text-gray-500">
-                          View details
-                        </summary>
-                        <p className="whitespace-pre-line text-base leading-relaxed">
-                          {task.description}
-                        </p>
-                      </details>
-                    </CardContent>
-                  </Card>
-                );
-              })}
+              {tasks.map((task) => (
+                <TaskCard key={task.id} task={task} onLongPress={() => handleLongPressTask(task.id)} />
+              ))}
             </div>
           </motion.div>
         </TabsContent>
@@ -194,12 +202,22 @@ export default function MaidHelperApp() {
                     <div key={recipe.id} className="mb-6">
                       <h3 className="font-medium mb-2 text-lg">{recipe.name}</h3>
                       <div className="space-y-2">
-                        {items.map((item) => (
-                          <label key={item.id} className="flex items-center gap-2 cursor-pointer">
-                            <Checkbox checked={item.checked} onCheckedChange={() => toggleCheck(item.id)} />
-                            <span className={item.checked ? "line-through text-gray-400" : ""}>{item.name}</span>
-                          </label>
-                        ))}
+                        {items.map((item) => {
+                          const longPress = useLongPress(() => handleLongPressItem(item.id));
+                          return (
+                            <label
+                              key={item.id}
+                              {...longPress}
+                              className="flex items-center gap-2 cursor-pointer"
+                            >
+                              <Checkbox
+                                checked={item.checked}
+                                onCheckedChange={() => toggleCheck(item.id)}
+                              />
+                              <span className={item.checked ? "line-through text-gray-400" : ""}>{item.name}</span>
+                            </label>
+                          );
+                        })}
                       </div>
                     </div>
                   );

@@ -10,6 +10,7 @@ export interface Task {
   id: string;
   name: string;
   description: string;
+  imageUrl?: string;
 }
 
 export function useTasks() {
@@ -23,15 +24,9 @@ export function useTasks() {
     return unsub;
   }, []);
 
-  const add = useCallback(async (name: string, description: string, imageUrl?: string) => {
-  await addDoc(collection(db, "tasks"), {
-    name,
-    description,
-    imageUrl: imageUrl ?? "",
-    createdAt: serverTimestamp(),
-  });
-}, []);
-
+  const add = useCallback(async (data: Omit<Task, "id">) => {
+    await addDoc(collection(db, "tasks"), { ...data, createdAt: serverTimestamp() });
+  }, []);
 
   const remove = useCallback(async (id: string) => {
     await deleteDoc(doc(db, "tasks", id));
