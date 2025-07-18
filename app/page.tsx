@@ -86,7 +86,7 @@ export default function MaidHelperApp() {
                       <CardTitle>{task.name}</CardTitle>
                     </CardHeader>
                     <CardContent>
-                      {"imageUrl" in task && task.imageUrl && (
+                      {typeof task.imageUrl === "string" && (
                         <img
                           src={task.imageUrl}
                           alt={task.name}
