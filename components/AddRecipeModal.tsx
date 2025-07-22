@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { Modal } from "./ui/modal";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { uploadImage } from "@/lib/uploadImage";
+import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Label } from "./ui/label";
+import { Modal } from "./ui/modal"; // Make sure this exists or create it
 import { useRecipes } from "@/lib/useRecipes";
+import { uploadImage } from "@/lib/uploadImage"; // Make sure this utility exists
 
 interface AddRecipeModalProps {
   open: boolean;
@@ -19,32 +20,40 @@ export default function AddRecipeModal({ open, onOpenChange }: AddRecipeModalPro
   const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = async () => {
-    if (!name.trim()) return;
-    const ingArr = ingredients.split(",").map(i => i.trim()).filter(Boolean);
     let imageUrl = "";
     if (file) imageUrl = await uploadImage(file);
-    await add({ name, ingredients: ingArr, imageUrl });
-    setName(""); setIngredients(""); setFile(null);
+
+    const ingArr = ingredients
+      .split(",")
+      .map((i) => i.trim())
+      .filter(Boolean);
+
+    await add(name, ingArr, imageUrl);
+    setName("");
+    setIngredients("");
+    setFile(null);
     onOpenChange(false);
   };
 
   return (
-    <Modal title="Add Recipe" open={open} onOpenChange={onOpenChange}>
+    <Modal open={open} onOpenChange={onOpenChange} title="Add Recipe">
       <div className="space-y-4">
-        <Input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
-        <Input
-          placeholder="Ingredients (comma-separated)"
-          value={ingredients}
-          onChange={e => setIngredients(e.target.value)}
-        />
-        <Input
-          type="file"
-          accept="image/*"
-          onChange={(e) => setFile(e.target.files?.[0] || null)}
-        />
-        <Button onClick={handleSubmit} className="w-full">
-          Add Recipe
-        </Button>
+        <div>
+          <Label>Name</Label>
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
+        </div>
+        <div>
+          <Label>Ingredients (comma-separated)</Label>
+          <Input
+            value={ingredients}
+            onChange={(e) => setIngredients(e.target.value)}
+          />
+        </div>
+        <div>
+          <Label>Image</Label>
+          <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+        </div>
+        <Button onClick={handleSubmit}>Submit</Button>
       </div>
     </Modal>
   );
