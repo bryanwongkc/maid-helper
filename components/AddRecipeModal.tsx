@@ -1,50 +1,51 @@
 "use client";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+
+import React, { useState } from "react";
+import { Modal } from "./ui/modal";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { useState, ChangeEvent } from "react";
+import { uploadImage } from "@/lib/uploadImage";
 import { useRecipes } from "@/lib/useRecipes";
-import { storage } from "@/lib/firebase";
-import { ref, uploadBytes, getDownloadURL } from "firebase/storage";
-import { Plus } from "lucide-react";
 
-export default function AddRecipeModal({ open, onOpenChange }:{open:boolean; onOpenChange:(b:boolean)=>void}) {
+interface AddRecipeModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export default function AddRecipeModal({ open, onOpenChange }: AddRecipeModalProps) {
   const { add } = useRecipes();
-  const [name,setName] = useState("");
-  const [ingredients,setIngredients]=useState("");
-  const [file,setFile]=useState<File|null>(null);
-
-  const handleImage = (e:ChangeEvent<HTMLInputElement>)=>{
-    if(e.target.files?.[0]) setFile(e.target.files[0]);
-  };
+  const [name, setName] = useState("");
+  const [ingredients, setIngredients] = useState("");
+  const [file, setFile] = useState<File | null>(null);
 
   const handleSubmit = async () => {
-    if(!name.trim()) return;
-    let imageUrl="";
-    if(file){
-      const path = `recipeImages/${Date.now()}_${file.name}`;
-      const snap = await uploadBytes(ref(storage,path), file);
-      imageUrl = await getDownloadURL(snap.ref);
-    }
-    const ingArr = ingredients.split(",").map(i=>i.trim()).filter(Boolean);
-    await add(name, ingArr, imageUrl);   // we’ll extend the hook next
+    if (!name.trim()) return;
+    const ingArr = ingredients.split(",").map(i => i.trim()).filter(Boolean);
+    let imageUrl = "";
+    if (file) imageUrl = await uploadImage(file);
+    await add({ name, ingredients: ingArr, imageUrl });
     setName(""); setIngredients(""); setFile(null);
     onOpenChange(false);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader><DialogTitle>Add Recipe</DialogTitle></DialogHeader>
-        <Input placeholder="Recipe name" value={name} onChange={e=>setName(e.target.value)} className="mb-2"/>
-        <Input placeholder="Ingredients (comma separated)" value={ingredients} onChange={e=>setIngredients(e.target.value)} className="mb-2"/>
-        <label className="flex items-center gap-2 cursor-pointer">
-          <Plus className="w-4 h-4" />
-          <span>{file? file.name : "Choose image"}</span>
-          <input type="file" accept="image/*" onChange={handleImage} className="hidden"/>
-        </label>
-        <Button className="mt-4 w-full" onClick={handleSubmit}>Save</Button>
-      </DialogContent>
-    </Dialog>
+    <Modal title="Add Recipe" open={open} onOpenChange={onOpenChange}>
+      <div className="space-y-4">
+        <Input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
+        <Input
+          placeholder="Ingredients (comma-separated)"
+          value={ingredients}
+          onChange={e => setIngredients(e.target.value)}
+        />
+        <Input
+          type="file"
+          accept="image/*"
+          onChange={(e) => setFile(e.target.files?.[0] || null)}
+        />
+        <Button onClick={handleSubmit} className="w-full">
+          Add Recipe
+        </Button>
+      </div>
+    </Modal>
   );
 }
