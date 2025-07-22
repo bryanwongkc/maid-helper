@@ -3,10 +3,10 @@
 import React, { useState } from "react";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { Label } from "./ui/label";
-import { Modal } from "./ui/modal"; // Make sure this exists or create it
+import { Label } from "@radix-ui/react-label";
+import { Modal } from "./ui/modal";
 import { useRecipes } from "@/lib/useRecipes";
-import { uploadImage } from "@/lib/uploadImage"; // Make sure this utility exists
+import { uploadImage } from "@/lib/uploadImage";
 
 interface AddRecipeModalProps {
   open: boolean;
@@ -21,13 +21,10 @@ export default function AddRecipeModal({ open, onOpenChange }: AddRecipeModalPro
 
   const handleSubmit = async () => {
     let imageUrl = "";
-    if (file) imageUrl = await uploadImage(file);
-
-    const ingArr = ingredients
-      .split(",")
-      .map((i) => i.trim())
-      .filter(Boolean);
-
+    if (file) {
+      imageUrl = await uploadImage(file);
+    }
+    const ingArr = ingredients.split(",").map(i => i.trim()).filter(Boolean);
     await add(name, ingArr, imageUrl);
     setName("");
     setIngredients("");
@@ -39,21 +36,18 @@ export default function AddRecipeModal({ open, onOpenChange }: AddRecipeModalPro
     <Modal open={open} onOpenChange={onOpenChange} title="Add Recipe">
       <div className="space-y-4">
         <div>
-          <Label>Name</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} />
+          <Label htmlFor="name">Recipe Name</Label>
+          <Input id="name" value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div>
-          <Label>Ingredients (comma-separated)</Label>
-          <Input
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-          />
+          <Label htmlFor="ingredients">Ingredients (comma-separated)</Label>
+          <Input id="ingredients" value={ingredients} onChange={(e) => setIngredients(e.target.value)} />
         </div>
         <div>
-          <Label>Image</Label>
-          <Input type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
+          <Label htmlFor="image">Image (optional)</Label>
+          <Input id="image" type="file" accept="image/*" onChange={(e) => setFile(e.target.files?.[0] || null)} />
         </div>
-        <Button onClick={handleSubmit}>Submit</Button>
+        <Button onClick={handleSubmit}>Save Recipe</Button>
       </div>
     </Modal>
   );
