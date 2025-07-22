@@ -98,7 +98,6 @@ export default function MaidHelperApp() {
           <TabsTrigger value="grocery">Grocery List</TabsTrigger>
         </TabsList>
 
-        {/* Tasks Tab */}
         <TabsContent value="tasks" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex justify-between mb-4">
@@ -117,7 +116,6 @@ export default function MaidHelperApp() {
           </motion.div>
         </TabsContent>
 
-        {/* Recipes Tab */}
         <TabsContent value="recipes" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <div className="flex justify-between mb-4">
@@ -160,7 +158,6 @@ export default function MaidHelperApp() {
           </motion.div>
         </TabsContent>
 
-        {/* Grocery Tab */}
         <TabsContent value="grocery" asChild>
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
             <h2 className="text-xl font-semibold mb-4">Grocery Shopping List</h2>
